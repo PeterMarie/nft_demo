@@ -1,14 +1,16 @@
 from re import S
 from unittest import mock
-from brownie import accounts, network, config, Contract
+from brownie import accounts, network, config, Contract, VRFCoordinatorV2Mock
 from web3 import Web3
 
 DECIMALS = 8
 STARTING_VALUE = 200000000000
 FORKED_LOCAL_ENVIRONMENTS = ["mainnet-fork-dev"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "ganache-local"]
+opensea_url = "https://testnets.opensea.io/assets/{}/{}"
 
 contract_to_mock = {
+    "vrf_coordinator": VRFCoordinatorV2Mock
 }
 
 def get_account(index=None, id=None):
@@ -26,6 +28,8 @@ def deploy_mocks(contract_name):
     account = get_account()
     contract_type = contract_to_mock[contract_name]
     match contract_name:
+        case 'vrf_coordinator':
+            contract_type.deploy(25000000000000000, 1000000000, {"from": account})
         case _:
             pass
     print('Mock Deployed!')

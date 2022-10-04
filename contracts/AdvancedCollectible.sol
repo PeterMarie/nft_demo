@@ -7,10 +7,10 @@ import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Lottery is ERC721, VRFConsumerBaseV2, Ownable {
+contract AdvancedCollectible is ERC721, VRFConsumerBaseV2, Ownable {
 
     VRFCoordinatorV2Interface COORDINATOR;
-    uint64 s_subscriptionId = 396;
+    uint64 s_subscriptionId;
     bytes32 public keyHash;
     address VRFCoordinator;
     uint16 requestConfirmations = 3;
@@ -48,7 +48,8 @@ contract Lottery is ERC721, VRFConsumerBaseV2, Ownable {
             keyHash = _keyhash;
     }
 
-    function createCollectible() public {
+    function createCollectible(uint64 _sub_id) public {
+        s_subscriptionId = _sub_id;
         requestRandomWords();
     }
     

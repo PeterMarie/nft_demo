@@ -1,21 +1,30 @@
-from brownie import SimpleCollectible
+from brownie import AdvancedCollectible, config, network
 import scripts.functions as func
 
-sample_token_uri = "https://ipfs.io/ipfs/Qmd9MCGtdVz2miNumBHDbvj8bigSgTwnr4SbyH6DNnpWdt?filename=0-PUG.json"
-opensea_url = "https://testnets.opensea.io/assets/{}/{}"
+#sample_token_uri = "https://ipfs.io/ipfs/Qmd9MCGtdVz2miNumBHDbvj8bigSgTwnr4SbyH6DNnpWdt?filename=0-PUG.json"
 
 def deploy():
     account = func.get_account()
-    contract = SimpleCollectible.deploy(sample_token_uri, {"from": account}, publish_source=func.get_verify())
-    #contract = SimpleCollectible[-1]
-    token_id = contract.tokenCounter({"from": account})
-    #print(token_id)
-    tx = contract.createCollectible({"from": account})
+    sub_id = config["chainlink"]["subscription_id"]
+    keyhash = config["networks"][network.show_active()]["keyhash"]
+    vrf_contract = func.get_contract('vrf_coordinator')
+    if(len(AdvancedCollectible) == 0):
+        contract = AdvancedCollectible.deploy(sub_id, vrf_contract, keyhash, {"from": account}, publish_source=func.get_verify())
+    else:
+        contract = AdvancedCollectible[-1]
+    sub_id_txn = vrf_contract.createSubscription({"from": account})
+    sub_id_txn.wait(1)
+    sub_id = sub_id_txn.events["SubscriptionCreated"]["subId"]
+    fund_amount_link = 300000000000000000000
+    fund_vrf_txn = vrf_contract.fundSubscription(sub_id, fund_amount_link, {"from": account})
+    fund_vrf_txn.wait(1)
+    tx = contract.createCollectible(sub_id, {"from": account})
     tx.wait(1)
-    token_uri = contract.tokenURI(token_id, {"from": account})
-    #print(token_uri)
-    #print(f"Done. View NFT at {opensea_url.format(contract.address, token_id)}")
-    return contract
+    request_id = tx.events["requestedRandomWords"]["requestId"]
+    fulfill_txn = vrf_contract.fulfillRandomWords(request_id, contract.address, {"from": account})
+    fulfill_txn.wait(1)
+    breed = fulfill_txn.events["requestedCollectible"]["breed"]
+    print(f"New {breed} Collectible created")
 
 
 def main():

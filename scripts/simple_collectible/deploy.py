@@ -2,7 +2,6 @@ from brownie import SimpleCollectible
 import scripts.functions as func
 
 sample_token_uri = "https://ipfs.io/ipfs/Qmd9MCGtdVz2miNumBHDbvj8bigSgTwnr4SbyH6DNnpWdt?filename=0-PUG.json"
-opensea_url = "https://testnets.opensea.io/assets/{}/{}"
 
 def deploy():
     account = func.get_account()
@@ -14,7 +13,7 @@ def deploy():
     tx.wait(1)
     token_uri = contract.tokenURI(token_id, {"from": account})
     #print(token_uri)
-    #print(f"Done. View NFT at {opensea_url.format(contract.address, token_id)}")
+    #print(f"Done. View NFT at {func.opensea_url.format(contract.address, token_id)}")
     return contract
 
 
