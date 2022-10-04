@@ -1,6 +1,6 @@
 from re import S
 from unittest import mock
-from brownie import accounts, network, config, Contract, MockV3Aggregator, VRFCoordinatorV2Mock
+from brownie import accounts, network, config, Contract
 from web3 import Web3
 
 DECIMALS = 8
@@ -9,8 +9,6 @@ FORKED_LOCAL_ENVIRONMENTS = ["mainnet-fork-dev"]
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "ganache-local"]
 
 contract_to_mock = {
-    "eth_usd_price_feed": MockV3Aggregator,
-    "vrf_coordinator": VRFCoordinatorV2Mock
 }
 
 def get_account(index=None, id=None):
@@ -28,10 +26,6 @@ def deploy_mocks(contract_name):
     account = get_account()
     contract_type = contract_to_mock[contract_name]
     match contract_name:
-        case 'eth_usd_price_feed':
-            contract_type.deploy(DECIMALS, STARTING_VALUE, {"from": account})
-        case 'vrf_coordinator':
-            contract_type.deploy(25000000000000000, 1000000000, {"from": account})
         case _:
             pass
     print('Mock Deployed!')
