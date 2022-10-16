@@ -12,12 +12,13 @@ def deploy():
         contract = AdvancedCollectible.deploy(sub_id, vrf_contract, keyhash, {"from": account}, publish_source=func.get_verify())
     else:
         contract = AdvancedCollectible[-1]
-    sub_id_txn = vrf_contract.createSubscription({"from": account})
-    sub_id_txn.wait(1)
-    sub_id = sub_id_txn.events["SubscriptionCreated"]["subId"]
-    fund_amount_link = 300000000000000000000
-    fund_vrf_txn = vrf_contract.fundSubscription(sub_id, fund_amount_link, {"from": account})
-    fund_vrf_txn.wait(1)
+    if(network.show_active() in func.LOCAL_BLOCKCHAIN_ENVIRONMENTS):
+        sub_id_txn = vrf_contract.createSubscription({"from": account})
+        sub_id_txn.wait(1)
+        sub_id = sub_id_txn.events["SubscriptionCreated"]["subId"]
+        fund_amount_link = 300000000000000000000
+        fund_vrf_txn = vrf_contract.fundSubscription(sub_id, fund_amount_link, {"from": account})
+        fund_vrf_txn.wait(1)
     tx = contract.createCollectible(sub_id, {"from": account})
     tx.wait(1)
     request_id = tx.events["requestedRandomWords"]["requestId"]
