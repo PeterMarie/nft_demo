@@ -9,7 +9,7 @@ def deploy():
     keyhash = config["networks"][network.show_active()]["keyhash"]
     vrf_contract = func.get_contract('vrf_coordinator')
     if(len(AdvancedCollectible) == 0):
-        contract = AdvancedCollectible.deploy(sub_id, vrf_contract, keyhash, {"from": account}, publish_source=func.get_verify())
+        contract = AdvancedCollectible.deploy(sub_id, vrf_contract, keyhash, {"from": account})
     else:
         contract = AdvancedCollectible[-1]
     if(network.show_active() in func.LOCAL_BLOCKCHAIN_ENVIRONMENTS):
@@ -21,11 +21,19 @@ def deploy():
         fund_vrf_txn.wait(1)
     tx = contract.createCollectible(sub_id, {"from": account})
     tx.wait(1)
-    request_id = tx.events["requestedRandomWords"]["requestId"]
-    fulfill_txn = vrf_contract.fulfillRandomWords(request_id, contract.address, {"from": account})
-    fulfill_txn.wait(1)
-    breed = fulfill_txn.events["requestedCollectible"]["breed"]
+    if(network.show_active() in func.LOCAL_BLOCKCHAIN_ENVIRONMENTS):
+        request_id = tx.events["requestedRandomWords"]["requestId"]
+        fulfill_txn = vrf_contract.fulfillRandomWords(request_id, contract.address, {"from": account})
+        fulfill_txn.wait(1)
+        breed = func.get_breed(fulfill_txn.events["requestedCollectible"]["breed"])
+        random_no = fulfill_txn.events["requestedCollectible"]["word"]
+    else:
+        breed = func.get_breed(tx.events["requestedCollectible"]["breed"])
+        random_no = tx.events["requestedCollectible"]["word"]
     print(f"New {breed} Collectible created")
+    print(f"Random number was {random_no}")
+
+    return contract
 
 
 def main():

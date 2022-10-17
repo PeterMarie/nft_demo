@@ -33,7 +33,7 @@ contract AdvancedCollectible is ERC721, VRFConsumerBaseV2, Ownable {
 
     mapping(uint=>Breed) tokenidtobreed;
     mapping(uint=>string) tokenidtotokenuri;
-    event requestedCollectible(uint indexed tokenId, Breed breed);
+    event requestedCollectible(uint indexed tokenId, Breed breed, uint word);
 
     constructor(
             uint64 subscriptionId,
@@ -77,7 +77,7 @@ contract AdvancedCollectible is ERC721, VRFConsumerBaseV2, Ownable {
         Breed breed = Breed(randomWords[0] % 3);
         tokenidtobreed[new_token_id] = breed;
         tokenCounter++;
-        emit requestedCollectible(new_token_id, breed);
+        emit requestedCollectible(new_token_id, breed, randomWords[0]);
     }
 
     function setTokenURI(uint _tokenId, string memory _tokenURI) public {

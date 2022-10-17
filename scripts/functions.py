@@ -56,9 +56,18 @@ def get_price_feed():
         contract = get_contract(contract_name)
         return contract.address
   
-
 def get_verify():
     return config["networks"][network.show_active()].get("verify", False)
 
+def get_breed(breed):
+    match breed:
+        case 0:
+            return "Pug"
+        case 1:
+            return "Shiba_Inu"
+        case 2:
+            return "St_Bernard"
+        case _:
+            return ""
 
 
